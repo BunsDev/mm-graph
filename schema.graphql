@@ -1,6 +1,29 @@
-type ExampleEntity @entity {
+type BorrowEntity @entity {
   id: ID!
-  count: BigInt!
-  reserve: Bytes! # address
-  user: Bytes! # address
+  reserve: Bytes! #address
+  user: Bytes! #address
+  onBehalfOf: Bytes! #address
+  amount: BigInt!
+  block: BigInt!
+  transactionHash: Bytes!
+}
+
+type SupplyERC721Entity @entity {
+  id: ID!
+  reserve: Bytes! #address
+  tokenId: [BigInt!]
+  user: Bytes! #address
+  onBehalfOf: Bytes! #address
+  block: BigInt!
+  transactionHash: Bytes!
+}
+
+type SupplyEntity @entity {
+  id: ID!
+  reserve: Bytes! #address
+  user: Bytes! #address
+  onBehalfOf: Bytes! #address
+  amount: BigInt!
+  block: BigInt!
+  transactionHash: Bytes!
 }

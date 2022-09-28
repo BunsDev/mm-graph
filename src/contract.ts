@@ -1,54 +1,59 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt } from "@graphprotocol/graph-ts";
+import { Borrow, SupplyERC721, Supply } from "../generated/Contract/Contract";
 import {
-  Contract,
-  Borrow,
-  SupplyERC721,
-  Supply
-} from "../generated/Contract/Contract"
-import { ExampleEntity } from "../generated/schema"
+  BorrowEntity,
+  SupplyEntity,
+  SupplyERC721Entity,
+} from "../generated/schema";
+import { log } from "@graphprotocol/graph-ts";
 
 export function handleBorrow(event: Borrow): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+  const ID = `${event.transaction.hash.toHex()}-${event.transactionLogIndex.toString()}`;
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+  if (!!BorrowEntity.load(ID)) {
+    log.warning("Entity({}) exists!", [ID]);
   }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.reserve = event.params.reserve
-  entity.user = event.params.user
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // None
+  let entity = new BorrowEntity(ID);
+  entity.reserve = event.params.reserve;
+  entity.user = event.params.user;
+  entity.amount = event.params.amount;
+  entity.onBehalfOf = event.params.onBehalfOf;
+  entity.block = event.block.number;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
 }
 
-export function handleSupplyERC721(event: SupplyERC721): void {}
+export function handleSupplyERC721(event: SupplyERC721): void {
+  const ID = `${event.transaction.hash.toHex()}-${event.transactionLogIndex.toString()}`;
 
-export function handleSupply(event: Supply): void {}
+  if (!!SupplyERC721Entity.load(ID)) {
+    log.warning("Entity({}) exists!", [ID]);
+  }
+
+  let entity = new SupplyERC721Entity(ID);
+  entity.reserve = event.params.reserve;
+  entity.user = event.params.user;
+  entity.tokenId = event.params.tokenData.map<BigInt>((e) => e.tokenId);
+  entity.onBehalfOf = event.params.onBehalfOf;
+  entity.block = event.block.number;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+}
+
+export function handleSupply(event: Supply): void {
+  const ID = `${event.transaction.hash.toHex()}-${event.transactionLogIndex.toString()}`;
+
+  if (!!SupplyEntity.load(ID)) {
+    log.warning("Entity({}) exists!", [ID]);
+  }
+
+  let entity = new SupplyEntity(ID);
+  entity.reserve = event.params.reserve;
+  entity.user = event.params.user;
+  entity.amount = event.params.amount;
+  entity.onBehalfOf = event.params.onBehalfOf;
+  entity.block = event.block.number;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+}
